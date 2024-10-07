@@ -116,6 +116,6 @@ json
   "minutes": 30,
   "seconds": 15
 }
-Get Timer:
 
+Get Timer:
 GET /timer/{timer_id}
