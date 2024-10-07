@@ -90,6 +90,5 @@ class TimerScheduler:
         # for timer_id, (expiration_time, url) in list(self.timers.items()):
         for timer_id in expired_timers:
             expiration_time, url = self.timers[timer_id]
-            # if expiration_time <= current_time:
             await self.trigger_webhook(timer_id, url)
             del self.timers[timer_id]
