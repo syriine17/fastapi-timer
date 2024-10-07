@@ -71,7 +71,7 @@ async def set_timer(
         )
         db.add(new_timer)
 
-    await db.commit()  # Commit the transaction outside the context manager
+    await db.commit()
     await db.refresh(new_timer)  # Refresh the new_timer after commit
 
     time_left = timer.hours * 3600 + timer.minutes * 60 + timer.seconds
