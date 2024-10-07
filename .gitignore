@@ -1,0 +1,24 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+.env
+
+# Docker files
+*.db
+*.sqlite3
+
+# IDE settings
+.vscode/
+.idea/
+
+# Alembic version files (optional, if you want to ignore version history)
+alembic/versions/*.pyc
+alembic/versions/*.pyo
+
+# Other files to ignore
+.DS_Store
+*.log
