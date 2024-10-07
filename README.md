@@ -42,25 +42,25 @@ Make sure you have the following installed:
 
 1. **Clone the repository**:
 
-   ```bash
+   ```sh
    git clone https://github.com/yourusername/fastapi-timer.git
    cd fastapi-timer
    ```
 
 2. **Build the Docker containers**:
 
-    ```bash
+    ```sh
     docker-compose build
     ```
 
 3. **Start the application and the database**:
 
-    ```bash
+    ```sh
     docker-compose up
     ```
 4.  ** Run migrations to create the database tables**:
 
-    ``` bash
+    ```sh
     docker-compose exec fastapi-app alembic upgrade head
     ```
 
@@ -70,7 +70,7 @@ Send a POST request to set-timer with a JSON body containing url, hours, minutes
 
     Example request:
 
-    ``` bash
+    ```sh
     curl -X POST "http://localhost:8000/timer" \
     -H "Content-Type: application/json" \
     -d '{"url": "http://example.com", "hours": 1, "minutes": 30, "seconds": 15}'
@@ -81,13 +81,13 @@ Send a GET request to get-timer/{timer_id} to retrieve the timer details.
 
     Example request:
 
-    ```bash
+    ```sh
     curl "http://localhost:8000/timer/aac29dae4b61"
     ```
 
 6. **To run the tests, execute the following command:**
 
-    ```bash
+    ```sh
     docker-compose exec fastapi-app pytest /app/tests/
     ```
 
