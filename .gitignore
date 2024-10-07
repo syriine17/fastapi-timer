@@ -15,7 +15,7 @@ venv/
 .vscode/
 .idea/
 
-# Alembic version files (optional, if you want to ignore version history)
+# Alembic version files
 alembic/versions/*.pyc
 alembic/versions/*.pyo
 
