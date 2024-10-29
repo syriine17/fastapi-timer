@@ -6,6 +6,9 @@ DATABASE_URL = "postgresql+asyncpg://myuser:mysecretpassword@db/mydatabase"
 
 # Create the async engine and session
 async_engine = create_async_engine(DATABASE_URL, echo=True)
+async_session = sessionmaker(
+    async_engine, expire_on_commit=False, class_=AsyncSession
+)
 
 AsyncSessionLocal = sessionmaker(
     async_engine, expire_on_commit=False, class_=AsyncSession

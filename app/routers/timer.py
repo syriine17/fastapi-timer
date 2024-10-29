@@ -40,23 +40,28 @@ async def set_timer(
     if not validators.url(timer.url):
         raise HTTPException(status_code=400, detail="Invalid URL format")
 
+    # Create the timer entry in the database
+    timer_id = uuid.uuid4()
+    total_seconds = timer.hours * 3600 + timer.minutes * 60 + timer.seconds
+    expiration_time = time.time() + total_seconds
+    new_timer = Timer(
+        id=timer_id,
+        url=timer.url,
+        hours=timer.hours,
+        minutes=timer.minutes,
+        seconds=timer.seconds,
+        expiration_time=expiration_time,
+    )
     async with db.begin():
-        timer_id = uuid.uuid4()  # Generate the UUID here
-        new_timer = Timer(
-            id=timer_id,
-            url=timer.url,
-            hours=timer.hours,
-            minutes=timer.minutes,
-            seconds=timer.seconds
-        )
         db.add(new_timer)
+        await db.commit()
 
-    await db.commit()
-    await db.refresh(new_timer)  # Refresh the new_timer after commit
+    # Set the timer to trigger the webhook
+    scheduler.set_timer(timer.hours, timer.minutes, timer.seconds, timer.url)
 
-    time_left = timer.hours * 3600 + timer.minutes * 60 + timer.seconds
-    scheduler.set_timer(timer.hours, timer.minutes, timer.seconds, timer.url)  # Set the timer
-    return TimerResponse(id=timer_id, time_left=time_left)
+    # Calculate the total time in seconds for the response
+    total_seconds = timer.hours * 3600 + timer.minutes * 60 + timer.seconds
+    return TimerResponse(id=timer_id, time_left=total_seconds)
 
 @router.get("/timer/{timer_id}", response_model=TimerStatusResponse)
 async def get_timer(

@@ -1,9 +1,14 @@
 # tests/test_scheduler.py
 import uuid
+from fastapi.testclient import TestClient
 import pytest
 import asyncio
 from app.scheduler import TimerScheduler
 from unittest.mock import patch
+from app.main import app
+
+
+client = TestClient(app)
 
 @pytest.mark.asyncio
 async def test_set_timer():
@@ -86,3 +91,56 @@ async def test_trigger_expired_timers(mock_trigger_webhook):
     mock_trigger_webhook.assert_called_once_with(timer_id_1, "http://example.com/1")
     assert timer_id_1 not in scheduler.timers
     assert timer_id_2 in scheduler.timers
+
+def test_invalid_timer_creation():
+    response = client.post("/timer", json={"hours": -1, "minutes": 0, "seconds": 0, "url": "http://testurl.com"})
+    assert response.status_code == 400
+    assert "detail" in response.json()
+
+
+def test_invalid_url():
+    response = client.post("/timer", json={"hours": 0, "minutes": 0, "seconds": 5, "url": "invalid-url"})
+    assert response.status_code == 400
+    assert "detail" in response.json()
+
+@pytest.fixture
+def scheduler():
+    return TimerScheduler()
+
+
+@pytest.mark.asyncio
+async def test_set_timer(scheduler):
+    timer_id = scheduler.set_timer(0, 0, 5, "http://testurl.com")
+    assert timer_id in scheduler.timers
+
+
+@pytest.mark.asyncio
+async def test_wait_and_trigger(scheduler):
+    timer_id = scheduler.set_timer(0, 0, 1, "http://testurl.com")
+    await asyncio.sleep(2)  # Wait for the timer to trigger
+    assert timer_id not in scheduler.timers
+
+
+@patch("httpx.AsyncClient.post")
+@pytest.mark.asyncio
+async def test_trigger_webhook_success(mock_post, scheduler):
+    mock_post.return_value.status_code = 200
+    timer_id = scheduler.set_timer(0, 0, 1, "http://testurl.com")
+    await asyncio.sleep(2)  # Wait for the timer to trigger
+    mock_post.assert_called_once_with("http://testurl.com", json={"id": str(timer_id)})
+
+
+@patch("httpx.AsyncClient.post")
+@pytest.mark.asyncio
+async def test_trigger_webhook_failure(mock_post, scheduler):
+    mock_post.side_effect = Exception("Network error")
+    timer_id = scheduler.set_timer(0, 0, 1, "http://testurl.com")
+    await asyncio.sleep(2)  # Wait for the timer to trigger
+    mock_post.assert_called_once_with("http://testurl.com", json={"id": str(timer_id)})
+
+
+@pytest.mark.asyncio
+async def test_get_time_left(scheduler):
+    timer_id = scheduler.set_timer(0, 0, 10, "http://testurl.com")
+    time_left = scheduler.get_time_left(timer_id)
+    assert time_left <= 10  # Ensure time left is less than or equal to 10 seconds
