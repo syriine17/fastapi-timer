@@ -21,6 +21,9 @@ services:
     environment:
       - PYTHONPATH=/app
       - DATABASE_URL=postgres://myuser:mysecretpassword@db:5432/mydatabase
+      - DB_USER=myuser
+      - DB_PASSWORD=mysecretpassword
+      - DB_NAME=mydatabase
     ports:
       - "8000:8000"
     volumes:

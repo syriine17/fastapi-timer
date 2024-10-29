@@ -126,12 +126,14 @@ class TimerScheduler:
 
         for timer in timers:
             expiration_time = timer.expiration_time
-            if expiration_time <= current_time:
-                # Trigger immediately if expired
-                await self.trigger_webhook(timer.id, timer.url)
-            else:
-                # Schedule for future triggering
-                asyncio.create_task(self._wait_and_trigger(timer.id, expiration_time, timer.url))
+            print("hiiiiiii", expiration_time)
+            if expiration_time:
+                if expiration_time <= current_time:
+                    # Trigger immediately if expired
+                    await self.trigger_webhook(timer.id, timer.url)
+                else:
+                    # Schedule for future triggering
+                    asyncio.create_task(self._wait_and_trigger(timer.id, expiration_time, timer.url))
 
     async def trigger_expired_timers(self):
         """

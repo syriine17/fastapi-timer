@@ -42,12 +42,15 @@ async def set_timer(
 
     # Create the timer entry in the database
     timer_id = uuid.uuid4()
+    total_seconds = timer.hours * 3600 + timer.minutes * 60 + timer.seconds
+    expiration_time = time.time() + total_seconds
     new_timer = Timer(
         id=timer_id,
         url=timer.url,
         hours=timer.hours,
         minutes=timer.minutes,
-        seconds=timer.seconds
+        seconds=timer.seconds,
+        expiration_time=expiration_time,
     )
     async with db.begin():
         db.add(new_timer)
